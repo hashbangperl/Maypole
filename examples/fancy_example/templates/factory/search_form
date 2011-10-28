@@ -1,0 +1,22 @@
+<div id="search">
+<form method="get" action="[% base %]/[% classmetadata.moniker %]/search/">
+<fieldset>
+<legend>Search</legend>
+        [% FOR col = classmetadata.columns;
+            NEXT IF col == "id" OR col == classmetadata.table _ "_id";
+         %]
+	    <label>
+                <span class="field">[% classmetadata.colnames.$col; %]</span>
+                    [% SET element = classmetadata.cgi.$col;
+                    IF element.tag == "select";
+                        USE element_maker = Class("HTML::Element");
+                        SET element = element.unshift_content(
+                            element_maker.new("option", value," "));
+                    END;
+                   element.as_XML; %]
+		   </label>
+        [% END; %]
+    <input type="submit" name="search" value="search"/>
+    </fieldset>
+</form>
+</div>

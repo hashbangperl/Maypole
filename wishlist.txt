@@ -1,0 +1,56 @@
+2.12/3.0 wishlist
+=================
+
+Not for inclusion in the MANIFEST. 
+
+2.11
+====
+Fix factory roots, document and explain behaviour
+send_output() should return a status code
+Move template test out of process() and into handler_guts() - maybe
+Fix bug 14570 - returning error codes breaks CGI::Maypole
+Write Maypole::Manual::Exceptions
+Test and refactor external_redirect()
+
+Fix Mp::P::USC. 
+
+2.12
+====
+Maypole::instance()
+Better plugin architecture, for models and bits of models. 
+Investigate problems reported with adopt() - rt 15598
+Re-implement Maypole::Cache as Maypole::Plugin::Cache, probably using 
+    start_request_hook, and not overriding handler_guts()
+Handle repeat form submissions.
+Implement internal_redirect().
+Build a more sophisticated app for testing. 
+Move class_of() to the controller - need to do this to support multiple models 
+    - maybe
+Multiple model support - URLs like /$base/$model/$table/$action/$id.
+Refactor M-P-USC and M-P-Session into M-P-User, M-P-Session, and M-P-Cookie
+
+
+3.0
+====
+Encapsulate all request data in HTTP::Request object, and all response data 
+in HTTP::Response object
+
+Look at HTTP::Body
+
+Easier file uploads - look at incorporating Mp::P::Upload
+
+Add email handling - like Rails - via model plugins. 
+
+An e-commerce model plugin would be nice - or proof of concept - maybe look 
+at Handel.  
+
+Add validation layer(s), or just an API
+
+killer apps: SVN model; mitiki; Pet Shop; adventure builder 
+
+Multiple views - HTML, text-only, PDF, SOAP, XML  - use request data to switch
+to an alternate view_object - switch via a factory method.
+
+Maybe rename the model to PModel (Presentation Model)?
+
+Pseudo-continuations...

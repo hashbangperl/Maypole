@@ -1,0 +1,48 @@
+[%#
+
+=head1 pager
+
+This controls the pager display at the bottom (by default) of the list
+and search views. It expects a C<pager> template argument which responds
+to the L<Data::Page> interface.
+
+#%]
+[%
+IF pager AND pager.first_page != pager.last_page;
+%]
+<p class="pager">Pages: 
+[%
+    UNLESS pager_action;
+	SET pager_action = request.action;
+    END;
+   
+    SET begin_page = pager.current_page - 10;
+    IF begin_page < 1;
+        SET begin_page = pager.first_page;
+    END;
+    SET end_page = pager.current_page + 10;
+    IF pager.last_page < end_page;
+        SET end_page = pager.last_page;
+    END;
+     FOREACH num = [begin_page .. end_page];
+          IF num == pager.current_page;
+            "<span class='current-page'>"; num; "</span>";
+          ELSE;
+            SET label = num;
+            SET args = "?page=" _ num;
+	    SET args = args _ "&order=" _ request.params.order
+	      IF request.params.order;
+	    SET args = args _ "&amp;o2=desc"
+	      IF request.params.o2 == "desc";
+            FOR col = classmetadata.columns.list;
+              IF request.params.$col;
+                SET args = args _ "&" _ col _ "=" _ request.params.$col;
+                SET action = "search";
+              END;
+            END;
+            link(classmetadata.table, pager_action, args, label);
+          END;
+     END;
+%]
+</p>
+[% END %]

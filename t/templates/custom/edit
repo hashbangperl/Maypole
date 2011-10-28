@@ -1,0 +1,11 @@
+# edit
+[% 	
+
+	USE  dumper;
+"# errors dump"; 
+ 	dumper.dump(errors);
+"# parameters dump"; 
+ 	dumper.dump(request.params);
+%]
+
+# End errors dump 

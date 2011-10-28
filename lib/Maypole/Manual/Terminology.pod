@@ -1,0 +1,212 @@
+=head1 NAME
+
+Maypole::Manual::Terminology - common terms
+
+=head1 VERSION
+
+This version written for Maypole 2.11
+
+=head1 TERMINOLOGY
+
+For the avoidance of confusion, the following terms are defined. We'll try and 
+ensure the Maypole docs stick to these usages.
+
+=over 4
+
+=item driver
+
+The custom package written to set up a Maypole application. This is the package 
+that has the C<use Maypole::Application> statement. If you're not using 
+L<Maypole::Application> to set up your app (not recommended for newbies, but 
+common enough), the driver class will directly inherit from one of Maypole's 
+frontend classes. 
+
+=item controller
+
+Occasionally this term is used in place of C<driver>.
+
+See the entry below (MVC) for the main usage of the term C<controller> within 
+Maypole. 
+
+=item application
+
+Sometimes this is used to refer to the driver, or the driver plus configuration
+data, but this term is best reserved to refer to the complete application, i.e.
+driver, plugins, templates, model, config, the whole shebang.
+
+=item frontend
+
+An adapter class that allows Maypole to work in a number of different server 
+environments. The currently available frontends are:
+
+    Frontend        Distribution    Environment
+    ==============================================
+    CGI::Maypole    Maypole         CGI
+    Apache::MVC	    Maypole         Apache/mod_perl or Apache2/mod_perl2
+    MasonX::Maypole	MasonX::Maypole Apache/mod_perl with Mason
+	
+The driver class inherits from the appropriate frontend, which inherits from 
+L<Maypole>.
+	
+=item backend
+
+Confusingly, sometimes you'll see the frontend referred to as the backend. It 
+depends on your point of view.
+
+Also confusingly, the Maypole model (e.g. L<Maypole::Model::CDBI>) is sometimes
+referred to as the backend.
+
+You'll just need to pay attention to context. In general, it's probably best to 
+avoid using this term altogether. 
+
+=item request
+
+The Maypole request object. This contains all data sent in the request
+(including headers, cookies, CGI parameters), and accumulates data to be sent in
+the response (headers and content). It also provides access to the configuration
+object, and stores the information parsed out of the URL (action, table, args
+etc.). Plugins often add methods and further data members to the request object. 
+
+=item workflow
+
+The sequence of events when a browser sends a request to a Maypole 
+application. 
+
+You will also often see this referred to as the C<request> (distinct from the 
+request object).
+
+=item Exported method
+
+A method in a Maypole model class that is labelled with the C<Exported> 
+attribute. These methods are mapped to part of the request URI. So requesting 
+a path will result in a particular method being called on a particular model 
+class.
+
+=item action
+
+An Exported method.
+
+Note: this is not the action attribute of a form, although the form's action URI
+will generally include a Maypole action component. For instance, a form might
+submit to the following URL: C<[% $base %]/beer/drink/5>. The form action is the
+URL, whereas the Maypole action is the C<drink> method on the C<BeerDB::Beer>
+object with an ID of 5.
+
+=item command
+
+In some of the standard factory templates, an C<action> is referred to as a 
+C<command>.
+
+=item template
+
+A file used to generate HTML for part or all of a web page. Maypole currently 
+supports Template Toolkit and Mason as templating languages, but others could 
+be added easily. Of course, a template doesn't have to generate only HTML.
+
+=back
+
+=head2 MVC and Maypole
+
+=head3 MVC - Model-View-Controller
+
+A pattern describing separation of concerns in a complex application. The 
+C<model> represents the domain or business logic. The C<view> represents the 
+user interface. The C<controller> mediates the interaction between the two. 
+
+Opinions vary between how closely Maypole adheres to this pattern. 
+
+Here's one opinion:
+
+=over 4 
+
+=item view
+
+This is represented in Maypole by the view class (L<Maypole::View::TT>, 
+L<Maypole::View::Mason>, or L<MasonX::Maypole::View>), and by the templates. 
+
+=item controller
+
+An abstract concept in Maypole, i.e. there is no specific controller class. 
+
+The main sequence of events that occur during the processing of a request is
+controlled by methods in C<Maypole.pm>. Thus, the controller logic is in the
+same class as the request object. This may seem a bit strange, but in practice
+it works well.
+
+More detailed events within the processing of a request are actually handled by 
+methods in the Maypole 'model'. For instance, switching from one template to 
+another - the "Template Switcheroo" referred to in L<Maypole::Manual::Cookbook>. 
+
+Be aware that occasionally authors refer to the C<controller> when they are
+describing the C<driver>.
+
+=item model
+
+In Maypole, the 'model' is the set of classes representing individual tables in
+the database. Tables are related to each other in a more or less complex way.
+Each table class inherits from a Maypole model class, such as
+L<Maypole::Model::CDBI> or L<Maypole::Model::CDBI::Plain>.
+
+The functionality provided by the Maypole model class is more accurately
+described as a Presentation Model (see below). In complex Maypole applications,
+it is good practise to separate the domain model (the 'heart' of the
+application) into a separate class hierarchy (see
+L<Maypole::Manual::Inheritance>).
+
+The distinction is relatively unimportant when using Maypole in 'default' mode - 
+i.e. using L<Maypole::Model::CDBI>, and allowing Maypole to autogenerate the 
+'model' classes straight out of the database. 
+
+However, in many applications, a more complex domain model is required, or may
+already exist. In this case, the Maypole model is more clearly seen as a layer
+that sits on top of the domain model, mediating access to it from the web UI, 
+via the controller.
+
+This conceptualisation helps developers maintain a separation between the
+Maypole model classes (presentation model), and the domain model. Without this
+distinction, developers may add domain-specific code to the Maypole model
+classes. To a certain extent, in simple applications, this is fine. But if you
+find yourself adding lots of non-Exported methods to your Maypole model classes,
+and these methods are not there to directly support Exported methods, consider
+whether you could separate out the domain model into a separate hierarchy of
+classes - see L<Maypole::Manual::Inheritance>.
+
+Otherwise, the 'model' classes may develop into two quite uncoupled code bases,
+but which co-exist in the same files. They will interact through a relatively
+small number of methods. These methods should in fact become the public API of
+the domain model, which should be moved to a separate class hierarchy. At some
+point, the convenience of dropping new methods into the 'shared' classes will be
+outweighed by the heuristic advantage of separating different layers into
+separate class hierarchies.
+
+=back
+
+=head3 Presentation Model
+
+This pattern more accurately describes the role of the Maypole model.
+Martin Fowler describes I<Presentation Model> in L<Separting presentation logic
+from the View|http://www.martinfowler.com/eaaDev/OrganizingPresentations.html>
+and L<Presentation
+Model|http://www.martinfowler.com/eaaDev/PresentationModel.html>.
+
+The user sends an event (e.g. an HTTP request) to the Controller. The Controller
+translates the request into a method call on the Presentation Model. The
+Presentation Model interacts with the underlying Domain Model, and stores the
+results in a bunch of variables, which I<represent the new state of the View>
+(that's why it's a Presentation Model, not a Domain Model). The View then
+queries the Presentation Model to retrieve these new values. In Maypole, this is
+the role of the C<vars()> method on L<Maypole::View::Base>, which transmits the
+new values to the templates.
+
+=head1 AUTHOR
+
+David Baird, C<< <cpan@riverside-cms.co.uk> >>
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2005 David Baird, All Rights Reserved.
+
+This text is free documentation; you can redistribute it and/or modify it
+under the same terms as the Perl documentation itself.
+
+=cut
